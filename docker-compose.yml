@@ -1,0 +1,31 @@
+#импорт image - sudo docker import animal_chipization_2022.tar webapi
+version: '3.9'
+services:
+  database:
+    image: postgres:latest
+    volumes:
+      - /var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=animal-chipization
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+  webapi:
+    image: webapi
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/animal-chipization
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+  tests:
+    image: mrexpen/planet_olymp_phase1
+    pull_policy: always
+    ports:
+      - "8090:8080"
+    depends_on:
+      - webapi
+    environment:
+      SERVER_URL: http://webapi:8080
+      STAGE: all
